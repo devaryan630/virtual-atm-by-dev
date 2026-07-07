@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Virtual ATM | Dev Aryan</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel= "stylesheet" href="style.css"> 
+</head>
+<body>
+     <button id="btn-about" class="about-toggle-btn">
+        <i class="fa-solid fa-circle-info"></i> About Project
+    </button>
+    <button id="theme-toggle" class="theme-toggle-btn">
+        <i class="fa-solid fa-sun"></i> Light Mode
+    </button>
+
+    <div class="header-container">
+        <i class="fa-solid fa-building-columns"></i>
+        <h1>VIRTUAL ATM</h1>
+        <div class="dev-credit">DEVELOPED BY DEV ARYAN</div>
+    </div>
+
+    <div class="atm-screen">
+        
+        <div id="welcome-screen" class="screen active">
+            <h3>Welcome to Premium Banking</h3>
+            <div class="gold-divider"><i class="fa-solid fa-diamond"></i></div>
+            <p>Please insert your card to begin</p>
+            
+            <div class="card-slot"><div id="atm-card" class="atm-card"></div></div>
+            
+            <button id="btn-insert-card" class="btn-insert">
+                <i class="fa-regular fa-credit-card"></i> Insert Card
+            </button>
+        </div>
+
+        <div id="pin-screen" class="screen">
+            <i class="fa-solid fa-lock icon-lock"></i>
+            <h3>Enter Your 4-Digit PIN</h3>
+            <p>Never share your PIN.</p>
+            
+            <input type="password" id="pin-input" class="pin-display" maxlength="4" readonly placeholder="••••">
+            
+            <div class="virtual-keypad">
+                <button class="key">1</button><button class="key">2</button><button class="key">3</button>
+                <button class="key">4</button><button class="key">5</button><button class="key">6</button>
+                <button class="key">7</button><button class="key">8</button><button class="key">9</button>
+                <button class="key btn-clear">CLR</button><button class="key">0</button><button class="key btn-enter">ENT</button>
+            </div>
+        </div>
+
+        <div id="dashboard-screen" class="screen">
+            <i class="fa-solid fa-money-check-dollar icon-lock"></i>
+            <h3>Select a Transaction</h3>
+            <div class="gold-divider"><i class="fa-solid fa-diamond"></i></div>
+            
+            <div class="dashboard-grid">
+                <button class="btn-grid" onclick="nav('withdraw-screen')"><i class="fa-solid fa-money-bill-transfer"></i> 1. Withdraw</button>
+                <button class="btn-grid" onclick="nav('deposit-screen')"><i class="fa-solid fa-money-bill-wave"></i> 2. Deposit</button>
+                <button class="btn-grid" onclick="showBalance()"><i class="fa-solid fa-chart-line"></i> 3. Balance Enquiry</button>
+                <button class="btn-grid" onclick="nav('transfer-screen')"><i class="fa-solid fa-arrow-right-arrow-left"></i> 4. Transfer Funds</button>
+                <button class="btn-grid" onclick="showStatement()"><i class="fa-solid fa-file-invoice"></i> 5. Mini Statement</button>
+                <button class="btn-grid" id="btn-dl-receipt"><i class="fa-solid fa-download"></i> 6. Download Receipt</button>
+                <button class="btn-grid" onclick="nav('withdraw-screen')"><i class="fa-solid fa-bolt"></i> 7. Fast Cash</button>
+                <button class="btn-grid" onclick="nav('changepin-screen')"><i class="fa-solid fa-lock"></i> 8. Change PIN</button>
+                <button class="btn-grid btn-exit" onclick="exitATM()"><i class="fa-solid fa-arrow-right-from-bracket"></i> 9. Exit</button>
+            </div>
+        </div>
+
+        <div id="withdraw-screen" class="screen">
+            <h3>Withdraw Funds</h3>
+            <p>Enter amount in multiples of ₹500</p>
+            <input type="number" id="withdraw-input" class="input-field" placeholder="Enter Amount (₹)">
+            <div>
+                <button class="btn-action" onclick="document.getElementById('withdraw-input').value='500'">₹500</button>
+                <button class="btn-action" onclick="document.getElementById('withdraw-input').value='1000'">₹1000</button>
+                <button class="btn-action" onclick="document.getElementById('withdraw-input').value='2000'">₹2000</button>
+            </div>
+            <div style="margin-top: 20px;">
+                <button class="btn-action" style="background:var(--btn-green);" onclick="processWithdraw()">Confirm</button>
+                <button class="btn-action" style="background:var(--btn-red);" onclick="nav('dashboard-screen')">Cancel</button>
+            </div>
+        </div>
+
+        <div id="deposit-screen" class="screen">
+            <h3>Deposit Funds</h3>
+            <p>Enter the amount you wish to deposit</p>
+            <input type="number" id="deposit-input" class="input-field" placeholder="Enter Amount (₹)">
+            <div style="margin-top: 20px;">
+                <button class="btn-action" style="background:var(--btn-green);" onclick="processDeposit()">Deposit</button>
+                <button class="btn-action" style="background:var(--btn-red);" onclick="nav('dashboard-screen')">Cancel</button>
+            </div>
+        </div>
+
+        <div id="balance-screen" class="screen">
+            <h3>Available Balance</h3>
+            <div class="gold-divider"><i class="fa-solid fa-diamond"></i></div>
+            <div class="balance-txt" id="balance-display">₹**,***</div>
+            <div>
+                <button class="btn-action" onclick="toggleBalanceVisibility()">Show/Hide</button>
+                <button class="btn-action" onclick="nav('dashboard-screen')">Back</button>
+            </div>
+        </div>
+
+        <div id="transfer-screen" class="screen">
+            <h3>Transfer Funds</h3>
+            <input type="number" id="transfer-acc" class="input-field" placeholder="10-Digit Account No.">
+            <input type="number" id="transfer-amt" class="input-field" placeholder="Enter Amount (₹)">
+            <div style="margin-top: 10px;">
+                <button class="btn-action" style="background:var(--btn-green);" onclick="processTransfer()">Transfer</button>
+                <button class="btn-action" style="background:var(--btn-red);" onclick="nav('dashboard-screen')">Cancel</button>
+            </div>
+        </div>
+
+        <div id="statement-screen" class="screen">
+            <h3>Mini Statement</h3>
+            <div style="width: 100%; max-height: 250px; overflow-y: auto;">
+                <table>
+                    <thead><tr><th>Date</th><th>Type</th><th>Amount</th></tr></thead>
+                    <tbody id="statement-body"></tbody>
+                </table>
+            </div>
+            <button class="btn-action" onclick="nav('dashboard-screen')">Back to Menu</button>
+        </div>
+
+        <div id="changepin-screen" class="screen">
+            <h3>Change PIN</h3>
+            <input type="password" id="pin-old" class="input-field" placeholder="Current PIN" maxlength="4">
+            <input type="password" id="pin-new" class="input-field" placeholder="New PIN" maxlength="4">
+            <input type="password" id="pin-conf" class="input-field" placeholder="Confirm New PIN" maxlength="4">
+            <div style="margin-top: 10px;">
+                <button class="btn-action" style="background:var(--btn-green);" onclick="processPinChange()">Update PIN</button>
+                <button class="btn-action" style="background:var(--btn-red);" onclick="nav('dashboard-screen')">Cancel</button>
+            </div>
+        </div>
+
+        <div id="receipt-modal" class="modal">
+            <div class="modal-content">
+                <h4 style="border-bottom: 1px dashed var(--gold-accent); padding-bottom:10px; margin-bottom:15px; color:var(--gold-accent);">Transaction Success</h4>
+                <p id="receipt-text" style="color:var(--text-white); margin-bottom: 20px;"></p>
+                <button class="btn-action" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+
+        <div id="about-modal" class="modal">
+            <div class="modal-content about-content">
+                <h4 style="border-bottom: 1px dashed var(--gold-accent); padding-bottom:10px; margin-bottom:15px; color:var(--gold-accent);">About The Developer</h4>
+                <div class="about-text" style="color:var(--text-white); margin-bottom: 20px; line-height: 1.6; font-family: 'Inter', sans-serif;">
+                    <p><strong>Developer:</strong> Dev Aryan</p>
+                    <p><strong>Roll No.:</strong> 2401201530028</p>
+                    <p><strong>Background:</strong> B.Tech CSE (AI & Machine Learning)</p>
+                    <p style="margin-top: 10px;"><strong>Project Goal:</strong> I created this Premium Virtual ATM with the help of the ai models to demonstrate modern front-end web development, clean UI/UX design principles, and complex state management without a backend database.</p>
+                    <p style="margin-top: 10px;"><strong>Tech Stack (Codes Used):</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 5px; color: var(--text-muted); font-size: 13px;">
+                        <li><strong>HTML5:</strong> Semantic structure and layout</li>
+                        <li><strong>CSS3:</strong> Advanced variables, glassmorphism, and theme toggling</li>
+                        <li><strong>JavaScript (ES6):</strong> DOM manipulation, financial logic, and Local Storage data retention</li>
+                         <li><strong>AI MODEL:</strong> Chat gpt, Google gemini.</li>
+                    </ul>
+                </div>
+                <button class="btn-action" onclick="closeAboutModal()">Close</button>
+            </div>
+        </div>
+
+    </div>
+<audio id="atm-sound" src="click.mp3" preload="auto"></audio>
+
+    <script src="script.js"></script>  
+ 
+
+   <button id="btn-feedback" class="feedback-floating-btn" onclick="openFeedbackModal()">
+        <i class="fa-solid fa-star"></i> Feedback
+    </button>
+
+    <div id="feedback-modal" class="modal">
+        <div class="modal-content feedback-content">
+            <h4 style="border-bottom: 1px dashed var(--gold-accent); padding-bottom:10px; margin-bottom:15px; color:var(--gold-accent);">Rate Your Experience</h4>
+            
+            <form action="https://api.web3forms.com/submit" method="POST" id="feedback-form">
+                
+                <input type="hidden" name="access_key" value="b8884acb-f4fc-45d6-bf6c-2e56a844c3e5">
+                
+                <input type="hidden" name="subject" value="New 5-Star ATM Feedback!">
+                <input type="hidden" name="from_name" value="Virtual ATM Project">
+
+                <div class="star-rating" id="star-container">
+                    <i class="fa-solid fa-star star active" onclick="setRating(1)"></i>
+                    <i class="fa-solid fa-star star active" onclick="setRating(2)"></i>
+                    <i class="fa-solid fa-star star active" onclick="setRating(3)"></i>
+                    <i class="fa-solid fa-star star active" onclick="setRating(4)"></i>
+                    <i class="fa-solid fa-star star active" onclick="setRating(5)"></i>
+                </div>
+                <input type="hidden" name="Rating" id="rating-value" value="5" required>
+
+                <textarea name="Message" class="input-field feedback-text" placeholder="Tell me what you think of the UI/UX..." required></textarea>
+                
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="submit" class="btn-action" style="background:var(--btn-green); flex-grow: 1;">Send Feedback</button>
+                    <button type="button" class="btn-action" style="background:var(--btn-red);" onclick="closeFeedbackModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
