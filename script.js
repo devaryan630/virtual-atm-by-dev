@@ -1,6 +1,7 @@
 // 1. Setup Theme & Data
 if (!localStorage.getItem('atm_balance')) localStorage.setItem('atm_balance', '25000');
-if (!localStorage.getItem('atm_txs')) localStorage.setItem('atm_txs', JSON.stringify([]));
+// Force the transaction history to start empty every time the page loads
+localStorage.setItem('atm_txs', JSON.stringify([]));
 let sessionUserName = "Guest";
 let sessionPin = null; 
 
@@ -241,7 +242,7 @@ function exitATM() {
     nav('welcome-screen');
 }
 
-// 6. Download Receipt File Generation (Premium PNG Version)
+// 6. Download Receipt File Generation (Premium PNG Full Statement)
 document.getElementById('btn-dl-receipt').addEventListener('click', () => {
     const txs = JSON.parse(localStorage.getItem('atm_txs'));
     if (txs.length === 0) return alert('No transactions to download.');
@@ -250,16 +251,17 @@ document.getElementById('btn-dl-receipt').addEventListener('click', () => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     
-    // 2. Set the size of our receipt image
+    // 2. Dynamic Height: Base height + (number of transactions * 50px per row)
+    const baseHeight = 350;
     canvas.width = 450;
-    canvas.height = 550;
+    canvas.height = baseHeight + (txs.length * 60);
 
-    // 3. Paint the Background (Matching your --bg-deep-navy)
+    // 3. Paint the Background 
     ctx.fillStyle = '#050e1f'; 
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // 4. Draw a Premium Gold Border
-    ctx.strokeStyle = '#e8b945'; // --gold-accent
+    ctx.strokeStyle = '#e8b945'; 
     ctx.lineWidth = 4;
     ctx.strokeRect(15, 15, canvas.width - 30, canvas.height - 30);
 
@@ -268,7 +270,7 @@ document.getElementById('btn-dl-receipt').addEventListener('click', () => {
     
     // Bank Header
     ctx.font = 'bold 26px "Inter", sans-serif';
-    ctx.fillStyle = '#e8b945'; // Gold
+    ctx.fillStyle = '#e8b945'; 
     ctx.fillText('PREMIUM VIRTUAL ATM', canvas.width / 2, 70);
     
     // Sub-header / Divider
@@ -276,40 +278,69 @@ document.getElementById('btn-dl-receipt').addEventListener('click', () => {
     ctx.fillStyle = '#a1b6d6';
     ctx.fillText('====================================', canvas.width / 2, 100);
 
-    // 6. Print Transaction Details
+    // 6. Print Account Info
     ctx.textAlign = 'left';
     ctx.font = '18px "Inter", sans-serif';
-    ctx.fillStyle = '#ffffff'; // White text
-    
-    // Space out the lines vertically
-    ctx.fillText(`ACCOUNT:   ${sessionUserName.toUpperCase()}`, 50, 160);
-    ctx.fillText(`DATE:      ${txs[0].date.split(',')[0]}`, 50, 210);
-    ctx.fillText(`TIME:     ${txs[0].date.split(',')[1] || ''}`, 50, 260);
-    ctx.fillText(`ACTION:    ${txs[0].type.toUpperCase()}`, 50, 310);
-    
-    // 7. Highlight the Amount in Green (or Red if it was a withdrawal)
-    ctx.font = 'bold 28px "Inter", sans-serif';
-    if (txs[0].type === 'Withdrawal') {
-        ctx.fillStyle = '#ef4444'; // --btn-red
-    } else {
-        ctx.fillStyle = '#10b981'; // --btn-green
-    }
-    ctx.fillText(`AMOUNT:    ₹${txs[0].amount.toLocaleString('en-IN')}`, 50, 380);
+    ctx.fillStyle = '#ffffff'; 
+    ctx.fillText(`ACCOUNT:   ${sessionUserName.toUpperCase()}`, 40, 150);
+    ctx.fillText(`PRINT DATE: ${new Date().toLocaleDateString('en-IN')}`, 40, 180);
 
-    // 8. Footer Info
+    // Table Header Divider
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#a1b6d6';
+    ctx.fillText('------------------------------------', canvas.width / 2, 220);
+
+    // 7. Table Column Headers
+    ctx.textAlign = 'left';
+    ctx.font = 'bold 14px "Inter", sans-serif';
+    ctx.fillStyle = '#e8b945';
+    ctx.fillText('TRANSACTION & DATE', 40, 250);
+    
+    ctx.textAlign = 'right';
+    ctx.fillText('AMOUNT', canvas.width - 40, 250);
+
+    // 8. LOOP: Print Every Transaction!
+    let startY = 290;
+    
+    txs.forEach(tx => {
+        // Action Text
+        ctx.textAlign = 'left';
+        ctx.font = 'bold 16px "Inter", sans-serif';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(tx.type.toUpperCase(), 40, startY);
+
+        // Date/Time Subtext
+        ctx.font = '12px "Inter", sans-serif';
+        ctx.fillStyle = '#a1b6d6';
+        ctx.fillText(tx.date, 40, startY + 20);
+
+        // Amount (Color-coded)
+        ctx.textAlign = 'right';
+        ctx.font = 'bold 18px "Inter", sans-serif';
+        if (tx.type === 'Withdrawal') {
+            ctx.fillStyle = '#ef4444'; // Red
+        } else {
+            ctx.fillStyle = '#10b981'; // Green
+        }
+        ctx.fillText(`₹${tx.amount.toLocaleString('en-IN')}`, canvas.width - 40, startY + 5);
+
+        // Move the Y cursor down for the next row
+        startY += 60;
+    });
+
+    // 9. Footer Info (Placed dynamically at the bottom)
     ctx.textAlign = 'center';
     ctx.font = 'italic 14px "Inter", sans-serif';
-    ctx.fillStyle = '#a1b6d6'; // Muted text
-    ctx.fillText('Thank you for banking with us!', canvas.width / 2, 470);
-    ctx.fillText('System Developed by Dev Aryan', canvas.width / 2, 500);
+    ctx.fillStyle = '#a1b6d6'; 
+    ctx.fillText('Thank you for banking with us!', canvas.width / 2, canvas.height - 60);
+    ctx.fillText('System Developed by Dev Aryan', canvas.width / 2, canvas.height - 35);
 
-    // 9. Convert Canvas to PNG and Trigger Download
-    const imgURL = canvas.toDataURL('image/png'); // Magically converts canvas to image
+    // 10. Convert Canvas to PNG and Trigger Download
+    const imgURL = canvas.toDataURL('image/png'); 
     const link = document.createElement('a');
     link.href = imgURL;
-    link.download = `Premium_Receipt_${Date.now()}.png`; // Unique file name
+    link.download = `Premium_Statement_${Date.now()}.png`; 
     
-    // Simulate a click to download
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
