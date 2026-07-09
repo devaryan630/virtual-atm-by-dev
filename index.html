@@ -37,6 +37,16 @@
             </button>
         </div>
 
+        <div id="name-screen" class="screen">
+            <i class="fa-solid fa-user" style="font-size: 40px; color: var(--gold-accent); margin-bottom: 15px;"></i>
+            <h3>Enter Account Name</h3>
+            <p style="font-size: 14px; opacity: 0.8; margin-bottom: 15px;">Who is performing this transaction?</p>
+            
+            <input type="text" id="user-name-input" class="input-field" placeholder="E.g. Dev Aryan" autocomplete="off">
+            
+            <button class="btn-action" style="background:var(--btn-green); margin-top: 20px;" onclick="submitName()">Proceed to PIN</button>
+        </div>
+
         <div id="pin-screen" class="screen">
             <i class="fa-solid fa-lock icon-lock"></i>
             <h3>Enter Your 4-Digit PIN</h3>
@@ -51,10 +61,12 @@
                 <button class="key btn-clear">CLR</button><button class="key">0</button><button class="key btn-enter">ENT</button>
             </div>
         </div>
+        
 
         <div id="dashboard-screen" class="screen">
             <i class="fa-solid fa-money-check-dollar icon-lock"></i>
-            <h3>Select a Transaction</h3>
+             <h3>Welcome, <span id="display-user-name" style="color: var(--gold-accent);">Guest</span>!</h3>
+             <p>Please select a transaction</p>
             <div class="gold-divider"><i class="fa-solid fa-diamond"></i></div>
             
             <div class="dashboard-grid">
