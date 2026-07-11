@@ -215,21 +215,28 @@ function processPinChange() {
         return alert('❌ Current PIN incorrect.');
     }
 
-    // 2. Double-check it is exactly 4 numbers
+    // 2. NEW SECURITY CHECK: Prevent using the same PIN
+    if (newP === oldP) {
+        document.getElementById('pin-new').value = ''; 
+        document.getElementById('pin-conf').value = ''; 
+        return alert('❌ Security Error: Current PIN and New PIN is same.');
+    }
+
+    // 3. Double-check it is exactly 4 numbers
     if (!/^\d{4}$/.test(newP)) return alert("❌ PIN must be exactly 4 numbers (0-9).");
     
-    // 3. Ensure new PINs match
+    // 4. Ensure new PINs match
     if (newP !== confP) {
         document.getElementById('pin-new').value = ''; 
         document.getElementById('pin-conf').value = ''; 
         return alert('❌ New PINs do not match.');
     }
 
-    // 4. Update the temporary variable
+    // 5. Update the temporary variable
     sessionPin = newP; 
     alert('✅ PIN Updated! Please login again.');
     
-    // 5. Clear fields and exit
+    // 6. Clear fields and exit
     document.getElementById('pin-old').value = ''; 
     document.getElementById('pin-new').value = ''; 
     document.getElementById('pin-conf').value = '';
